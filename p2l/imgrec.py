@@ -21,7 +21,7 @@ def rc_to_xy(point):
     return (point[1], point[0])
 
 
-def get_graph(file_name, debug=False):
+def get_graph(file_name, max_width=800, debug=False):
     """Given the name of an image file, generate a Graph corresponding to the
     contents of the image."""
     img = cv2.imread(file_name, cv2.IMREAD_GRAYSCALE)
@@ -29,7 +29,7 @@ def get_graph(file_name, debug=False):
 
     # Downsample image via Gaussian pyramind.
     width, height = img.shape
-    while 900 < width:
+    while width > max_width:
         img = cv2.pyrDown(img)
         width, height = img.shape
 
@@ -105,63 +105,30 @@ def find_edges(image, nodes, bbox_edges):
 def fill_node_bboxes(image, nodes):
     for node in nodes:
         cv2.rectangle(image, node.bbox_tl, node.bbox_br, PIXEL_UNVISITED, -1)
-        """
-        bbox_tl = node.bbox_tl
-        bbox_br = node.bbox_br
-
-        for i in range(bbox_tl[0], bbox_br[0] + 1):
-            for j in range(bbox_tl[1], bbox_br[1] + 1):
-                image[j, i] = PIXEL_UNVISITED
-        """
 
 
 def find_nbhd(image, nodes, bbox_edges, node):
     """ Finds all of the nodes that are adjacent to the given node in the image."""
     return traverse_edge(image, nodes, bbox_edges, node, node.pos)
-    """
-    return traverse_edge(image, nodes, bbox_edges, node, (
-        (node.bbox_tl[0] + node.bbox_br[0]) / 2,
-        (node.bbox_tl[1] + node.bbox_br[1]) / 2))
-    """
-
-
-def point_in_node(point, nodes):
-    """Returns the node whose bounding box contains the given point, or None if
-    no such node exists."""
-    for node in nodes:
-        if node.bbox_tl[0] <= point[0] \
-            and point[0] <= node.bbox_br[0] \
-            and node.bbox_tl[1] <= point[1] \
-            and point[1] <= node.bbox_br[1]:
-            return node
-
-    return None
 
 
 def traverse_edge(image, nodes, bbox_edges, start_node, start_pixel):
-    #frontier = Queue()
     frontier = []
-    #frontier.put((start_pixel[1], start_pixel[0]))
-    #frontier.append((start_pixel[1], start_pixel[0]))
     frontier.append(xy_to_rc(start_pixel))
 
     found_nodes = set()
 
-    #while not frontier.empty():
     while frontier:
-        #current = frontier.get()
         current = frontier.pop()
         image[current] = PIXEL_VISITED
 
-        found_node = point_in_node(current, nodes)
-        if found_node is not None and found_node != start_node: # Don't count loops as edges
-            found_nodes.add(found_node)
+        if current in bbox_edges and start_node != bbox_edges[current]: # Don't count loops as edges
+            found_nodes.add(bbox_edges[current])
             continue # Don't expand current pixel if it is on the boundary of a bounding box.
 
         for pixel in adjacent_pixels(current, image.shape):
             if image[pixel] == PIXEL_UNVISITED:
                 image[pixel] = PIXEL_DISCOVERED
-                #frontier.put(pixel)
                 frontier.append(pixel)
 
     return found_nodes
