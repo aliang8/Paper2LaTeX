@@ -12,20 +12,20 @@ class Graph():
 class Node():
     """ A node in a graph. Each node stores information about its (x, y)
     coordinates, as well as a set of its neighbours. """
-    def __init__(self, shape, bbox_tl=-1, bbox_br=-1, x_pos=-1, y_pos=-1,
-            neighbors={}):
+    def __init__(self, shape, bbox_tl=None, bbox_br=None, pos=None, neighbors={}):
         self.bbox_tl = bbox_tl
         self.bbox_br = bbox_br
         self.neighbors = neighbors
-        self.x_pos = x_pos
-        self.y_pos = y_pos
+        self.pos = pos
 
     def __hash__(self):
-        return hash((self.x_pos, self.y_pos))
+        return hash(self.pos)
 
     def __repr__(self):
-        return "Node(%d, %d)" % (self.x_pos, self.y_pos)
+        if self.pos is not None:
+            return "Node(%d, %d)" % (self.pos[0], self.pos[1])
+        return "Node(None)"
 
     def __eq__(self, other):
-        return self.x_pos == other.x_pos and self.y_pos == other.y_pos
+        return self.pos == other.pos
 
