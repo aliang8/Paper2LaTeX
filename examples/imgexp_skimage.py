@@ -56,5 +56,7 @@ ax2.imshow(dist_on_skel, cmap=plt.cm.spectral, interpolation='nearest')
 ax2.contour(data, [0.5], colors='w')
 ax2.axis('off')
 
+cv2.imshow('image normal', dist_on_skel)
+
 fig.tight_layout()
 plt.show()
