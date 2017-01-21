@@ -19,7 +19,7 @@ PIXEL_BG = 0 # Value of a background pixel.
 def make_bbox_iter(bbox_tl, bbox_br):
 
     print bbox_tl
-    print bbox_br
+    print bbox_br  # <- Main problem is with this variable. It's an integer as opposed to tuple
 
     bbox_tl = (bbox_tl[1], bbox_tl[0])
     bbox_br = (bbox_br[1], bbox_br[0])
