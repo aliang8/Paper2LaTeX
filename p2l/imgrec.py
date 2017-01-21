@@ -1,5 +1,5 @@
 import cv2
-import cv2.cv as cv
+#import cv2.cv as cv
 import numpy as np
 from Queue import Queue
 from itertools import repeat, chain, product
@@ -33,11 +33,19 @@ def get_graph(file_name, debug=False):
 
     img_nodes = find_circle_nodes(thresh_img, debug=debug)
 
+    print img_nodes
+
+    return img_nodes
+
 
 def find_circle_nodes(img, debug=False):
     width, height = img.shape
     min_closest_dist = max(height, width) / 7
+    '''
     circles = cv2.HoughCircles(img, cv.CV_HOUGH_GRADIENT, 1,
+         min_closest_dist, param1=90, param2=25, minRadius=0, maxRadius=0)
+    '''
+    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1,
          min_closest_dist, param1=90, param2=25, minRadius=0, maxRadius=0)
 
     img_nodes = []
