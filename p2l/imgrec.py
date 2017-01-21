@@ -35,7 +35,7 @@ def get_graph(file_name, max_width=900, debug=False):
 
     # Threshold image to separate light/dark pixels.
     # TODO: Figure out appropriate threshold from the image.
-    _, thresh_img = cv2.threshold(img, 180, 255, cv2.THRESH_BINARY_INV)
+    thresh_img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, -5)
     """
     if thresh_img[0][0] < 255:
         thresh_img = 255 - thresh_img

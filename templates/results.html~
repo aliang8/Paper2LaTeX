@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Results</title>
+        <style>
+            img {
+                width: 50%;
+                margin: 0 autp;
+            }
+        </style>
+    </head>
+
+    <body>
+        {% if placeholder %}
+        <img src="{{ img }}"/>
+        {% else %}
+        <img src="/static/{{ img }}"/>
+        {% endif %}
+    </body>
+
+    <form action="/" method="get">
+        <input type="submit" value="Return"/>
+    </form>
+</html>

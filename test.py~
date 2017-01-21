@@ -1,0 +1,3 @@
+from p2l import get_semantics
+
+get_semantics("examples/2nodes_dark.jpg", True)
