@@ -12,7 +12,7 @@ class Graph():
 class Node():
     """ A node in a graph. Each node stores information about its (x, y)
     coordinates, as well as a set of its neighbours. """
-    def __init__(self, shape, bbox_tl=-1, bbox_br=-1, x_pos=-1, y_pos=-1,
+    def __init__(self, shape, bbox_tl=(-1, -1), bbox_br=(-1, -1), x_pos=-1, y_pos=-1,
             neighbors={}):
         self.bbox_tl = bbox_tl
         self.bbox_br = bbox_br
