@@ -1,1 +1,1 @@
-from imgrec import get_semantics
+from imgrec import get_graph

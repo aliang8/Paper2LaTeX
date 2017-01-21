@@ -1,10 +1,17 @@
 import cv2
 import cv2.cv as cv
 import numpy as np
+from Queue import Queue
+from itertools import repeat, chain, product
 
 from graph import Graph, Node
 
-def get_semantics(file_name, debug=False):
+PIXEL_UNVISITED = 255  # Value of an unvisited pixel.
+PIXEL_VISITED = 120  # Value of a visited pixel.
+PIXEL_DISCOVERED = 80  # Value of a discovered pixel.
+PIXEL_BG = 0  # Value of a background pixel.
+
+def get_graph(file_name, debug=False):
     """Given the name of an image file, generate a Graph corresponding to the
     contents of the image."""
     img = cv2.imread(file_name, cv2.IMREAD_GRAYSCALE)
@@ -35,12 +42,11 @@ def find_circle_nodes(img, debug=False):
 
     img_nodes = []
     for x, y, r in circles[0,:]:
-        r2 = int(r + int(0.2 * r) + 5)
-        print width, height
-
         x = int(x)
         y = int(y)
         r = int(r)
+        r2 = int(r + int(0.2 * r) + 5)
+
         if debug:
             print x, y, r, r2
             # draw the outer circle
