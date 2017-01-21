@@ -15,8 +15,9 @@ if __name__ == "__main__":
     while 900 < width:
         img = cv2.pyrDown(img)
         width, height = img.shape
-    _, thresh_img_1 = cv2.threshold(img, 180, 255, cv2.THRESH_BINARY_INV)
+    ret3, thresh_img_1 = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     thresh_img_2 = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, -5)
+
 cv2.imshow('image normal', thresh_img_1)
 cv2.imshow('image_adaptive', thresh_img_2)
 cv2.waitKey(0)
