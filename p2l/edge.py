@@ -17,6 +17,10 @@ PIXEL_BG = 0 # Value of a background pixel.
 
 # In order to get pixels of a bounding box
 def make_bbox_iter(bbox_tl, bbox_br):
+
+    print bbox_tl
+    print bbox_br
+
     bbox_tl = (bbox_tl[1], bbox_tl[0])
     bbox_br = (bbox_br[1], bbox_br[0])
 
@@ -213,7 +217,7 @@ def find_edges(image, nodes, bbox_edges):
 ######### LET'S NOT WORRY ABOUT THIS RIGHT NOW ############
 '''
 def make_graph(nbhds):
-    """ Generates a Graph object from the dictionary of neighborhoods. """
+    #""" Generates a Graph object from the dictionary of neighborhoods. """
     nodes = set()
     for node in nbhds.keys():
         nodes.add(Node(x_pos=node.x_pos, y_pos=node.y_pos, neighbors=nbhds[node]))
