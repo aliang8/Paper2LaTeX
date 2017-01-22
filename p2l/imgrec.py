@@ -31,16 +31,6 @@ def get_graph(file_name, max_width=900, debug=False):
     width, height = img.shape
     while width > max_width:
         img = cv2.pyrDown(img)
-    #     height, width = img.shape
-
-    # # Threshold image to separate light/dark pixels.
-    # # TODO: Figure out appropriate threshold from the image.
-    # #thresh_img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, -5)
-    # _, thresh_img = cv2.threshold(img, 180, 255, cv2.THRESH_BINARY_INV)
-    # """
-    # if thresh_img[0][0] < 255:
-    #     thresh_img = 255 - thresh_img
-    # """
         width, height = img.shape
 
     img = cv2.blur(img, (5, 5))
@@ -54,7 +44,7 @@ def get_graph(file_name, max_width=900, debug=False):
     thresh_img_6 = img_as_ubyte(skeletonize(thresh_img_5 != 255))
     _, thresh_img_7 = cv2.threshold(thresh_img_6, 0, 255, cv2.THRESH_BINARY_INV)
 
-    thresh_img = thresh_img_5
+    thresh_img = thresh_img_7
     thresh_img_edges = thresh_img_7
 
     img_nodes = find_circle_nodes(thresh_img, debug=debug)
@@ -79,27 +69,34 @@ def get_graph(file_name, max_width=900, debug=False):
     return graph
 
 
-def find_circle_nodes(img, debug=False):
+def find_circle_nodes(img, debug=False, minRadius=5, maxRadius=50):
     height, width = img.shape
-    min_closest_dist = max(height, width) / 7
+    min_closest_dist = float(max(height, width)) / 5.5
 
-    circles = cv2.HoughCircles(img, HOUGH_GRADIENT, 1,
-         min_closest_dist, param1=90, param2=25, minRadius=0, maxRadius=0)
+    circles = cv2.HoughCircles(img, HOUGH_GRADIENT, 1.2,
+         min_closest_dist, param1=80, param2=25, minRadius=minRadius, maxRadius=maxRadius)
 
     img_nodes = []
-    for x, y, r in circles[0,:]:
-        x = int(x)
-        y = int(y)
-        r = int(r)
-        r2 = int(r + int(0.2 * r) + 5)
+    if circles is not None:
+        for x, y, r in circles[0,:]:
+            print x,y,r
+            x = int(x)
+            y = int(y)
+            r = int(r)
+            r2 = int(r * 1.2 + 5)
 
-        if debug:
-            print x, y, r, r2
-        i = x
-        j = y
-        img_node = Node(None, bbox_tl=(max(0, i-r2), max(0, j-r2)),
-            bbox_br=(min(height, i+r2), min(width, j+r2)), pos=(i, j))
-        img_nodes.append(img_node)
+            if debug:
+                print x, y, r, r2
+            i = x
+            j = y
+
+            img_circle = img[max(0, j-r2):min(height, j+r2), max(0, i-r2):min(width, i+r2)]
+            
+            if cv2.HoughCircles(img_circle, HOUGH_GRADIENT, 1,
+                    min_closest_dist, param1=50, param2=10, minRadius=minRadius, maxRadius=maxRadius) is not None:
+                img_node = Node(None, bbox_tl=(max(0, i - r2), max(0, j - r2)),
+                    bbox_br=(min(width, i + r2), min(height, j + r2)), pos=(i, j))
+                img_nodes.append(img_node)
 
     return img_nodes
 
@@ -118,10 +115,15 @@ def find_edges(image, nodes, bbox_edges):
     return make_graph(nodes, nbhds)
 
 
-def fill_node_bboxes(image, nodes):
+def fill_node_bboxes(image, nodes, debug=False, color=PIXEL_BG):
     for node in nodes:
-        cv2.rectangle(image, node.bbox_tl, node.bbox_br, PIXEL_BG, -1)
-
+        if debug:
+            color = 125
+        cv2.rectangle(image, node.bbox_tl, node.bbox_br, color, -1)
+    if debug:
+        cv2.imshow("fill_node_bboxes", image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 def find_nbhd(image, nodes, bbox_edges, node):
     """ Finds all of the nodes that are adjacent to the given node in the image."""
