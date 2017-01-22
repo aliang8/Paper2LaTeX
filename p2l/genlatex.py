@@ -2,18 +2,14 @@ from graph import *
 
 def scale_graph(graph, scale_x, scale_y):
     max_y = max(node.pos[0] for node in graph.nodes)
-    min_y = min(node.pos[0] for node in graph.nodes)
     max_x = max(node.pos[1] for node in graph.nodes)
-    min_x = min(node.pos[1] for node in graph.nodes)
 
     for node in graph.nodes:
         node.pos = (
-            scale_y * node.pos[0] / (max_y - min_y),
-            scale_x * node.pos[1] / (max_x - min_x))
+            min((float(scale_y)) * node.pos[0] / float(max_y), 50),
+            min((float(scale_x)) * node.pos[1] / float(max_x), 50))
 
-
-
-def transpile(g):
+def transpile(g, scale_x=15, scale_y=11):
     color="red!20"
     shape="circle"
     size="1.5cm"
@@ -24,7 +20,7 @@ def transpile(g):
         return "({0},{1}) -- ({2},{3});\n".format(node1.pos[0], -1 * node1.pos[1], node2.pos[0], -1 * node2.pos[1])
 
 
-    scale_graph(g, 8, 5)
+    scale_graph(g, scale_x, scale_y)
 
     with open("output.tex", 'w') as f:
         f.write("\documentclass{article}\n\usepackage{tikz}\n\\begin{document}\n\\begin{tikzpicture}\n")

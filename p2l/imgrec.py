@@ -10,6 +10,7 @@ from Queue import Queue
 from skimage.morphology import skeletonize
 from skimage import img_as_ubyte
 from graph import Graph, Node
+import math
 
 PIXEL_UNVISITED = 0  # Value of an unvisited pixel.
 PIXEL_VISITED = 120  # Value of a visited pixel.
@@ -106,7 +107,7 @@ def find_circle_nodes(img, debug=False):
 def find_edges(image, nodes, bbox_edges):
     """Finds the edges between nodes in the given image."""
 
-    fill_node_bboxes(image, nodes)
+    # fill_node_bboxes(image, nodes)
 
     # Dictionary mapping each node to its immediate neighbourhood.
     nbhds = {}
@@ -152,8 +153,7 @@ def find_nbhd(image, nodes, bbox_edges, node):
 
     return nbhd
 
-
-def traverse_edge(image, nodes, bbox_edges, start_node, start_pixel, momentum=80):
+def traverse_edge(image, nodes, bbox_edges, start_node, start_pixel, lookback=4):
     height, width = image.shape
 
     # Reset all non-background pixels. Quick-and-dirty fix for issues related
@@ -168,34 +168,15 @@ def traverse_edge(image, nodes, bbox_edges, start_node, start_pixel, momentum=80
 
     found_nodes = set()
 
-    checkpt_1 = None
-    checkpt_2 = start_pixel
-    checkpt_3 = None
+    checkpoints = []
 
     iter = 0
     while frontier:
         current = frontier.pop()
         image[current] = PIXEL_VISITED
 
-        if (iter + 1) % momentum == 0:
-            # Update checkpoints.
-            checkpt_1 = checkpt_2
-            checkpt_2 = current
-
-            # Extrapolate checkpt_1 and checkpt_2 to get checkpt_3.
-            checkpt_3 = [
-                2 * checkpt_2[0] - checkpt_1[0],
-                2 * checkpt_2[1] - checkpt_1[1]
-                ]
-            if checkpt_3[0] < 0:
-                checkpt_3[0] = 0
-            elif checkpt_3[0] > height:
-                checkpt_3[0] = height
-            if checkpt_3[1] < 0:
-                checkpt_3[1] = 0
-            elif checkpt_3[1] > width:
-                checkpt_3[1] = width
-            checkpt_3 = tuple(checkpt_3)
+        checkpoints.insert(0, current)
+        c_step = lookback
 
         if current in bbox_edges and start_node != bbox_edges[current]: # Don't count loops as edges
             found_nodes.add(bbox_edges[current])
@@ -203,9 +184,22 @@ def traverse_edge(image, nodes, bbox_edges, start_node, start_pixel, momentum=80
             # Don't expand current pixel if it is on the boundary of a bounding box.
 
         next_pixels = adjacent_pixels(current, image.shape)
-        if checkpt_3 is not None:
+        if len(checkpoints) >= lookback:
+            checkpoints.pop()
+            c_end = checkpoints[0]
+            c_start = checkpoints[len(checkpoints) - 1]
+            c_next_y, c_next_x = current[0], current[1]
+            if c_end[0] > c_start[0]:
+                c_next_y += c_step
+            elif c_end[0] < c_start[0]:
+                c_next_y -= c_step
+            if c_end[1] > c_start[1]:
+                c_next_x += c_step
+            elif c_end[1] < c_start[1]:
+                c_next_x -= c_step
+            c_next_hat = (c_next_y, c_next_x)
             # Enforce that the point closest to checkpt_3 be explored first.
-            neg_dists = [-distance(px, checkpt_3) for px in next_pixels]
+            neg_dists = [-distance(px, c_next_hat) for px in next_pixels]
             next_pixels = [px for _, px in sorted(zip(neg_dists, next_pixels))]
 
         for pixel in next_pixels:
@@ -220,8 +214,8 @@ def traverse_edge(image, nodes, bbox_edges, start_node, start_pixel, momentum=80
 
 def distance(a, b):
     """Manhattan distance."""
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
-
+    #return abs(a[0] - b[0]) + abs(a[1] - b[1])
+    return math.sqrt((a[0] - b[0]) ** 2 + (b[1] - a[1]) ** 2)
 
 def adjacent_pixels(pixel, image_shape):
     adjacent = []
