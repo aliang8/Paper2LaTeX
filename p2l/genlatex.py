@@ -13,11 +13,12 @@ def transpile(g):
     color="red!20"
     shape="circle"
     size="1.5cm"
-
+    scale_down_a1 = 20.
+    scale_down_a2 = -30.
     def getNodeString(node):
-      return "({0},{1}) node[{2}, fill={3}, minimum size={4}] {5};\n".format(node.pos[0], -1 * node.pos[1], shape, color, size, "{}")
+      return "({0},{1}) node[{2}, fill={3}, minimum size={4}] {5};\n".format(node.pos[0] / scale_down_a1, node.pos[1] / scale_down_a2, shape, color, size, "{}")
     def getEdgeString(node1, node2):
-      return "({0},{1}) -- ({2},{3});\n".format(node1.pos[0], -1 * node1.pos[1], node2.pos[0], -1 * node2.pos[1])
+      return "({0},{1}) -- ({2},{3});\n".format(node1.pos[0] / scale_down_a1, node1.pos[1] / scale_down_a2, node2.pos[0] / scale_down_a1, node2.pos[1] / scale_down_a2)
 
     f = open("output.tex", 'w')
     f.write("\documentclass{article}\n\usepackage{tikz}\n\\begin{document}\n\\begin{tikzpicture}\n")

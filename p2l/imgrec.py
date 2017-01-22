@@ -44,7 +44,7 @@ def get_graph(file_name, max_width=900, debug=False):
     _, thresh_img_7 = cv2.threshold(thresh_img_6, 0, 255, cv2.THRESH_BINARY_INV) 
 
     thresh_img = thresh_img_7
-    thresh_img_edges = thresh_img_5
+    thresh_img_edges = thresh_img_7
 
     img_nodes = find_circle_nodes(thresh_img, debug=debug)
     if debug:
