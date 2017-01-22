@@ -1,10 +1,15 @@
 import cv2
-from textRecognition import *
+#from textRecognition import *
+from textRecognitionCNN import *
 
 #file_name ='images/licensePlate.jpg'
 #file_name = 'images/notes2.jpg'
 #file_name = 'images/card.png'
-file_name = 'images/alphabet.png'
+#file_name = 'images/alphabet.png'
+#file_name = 'images/alphabet_custom.jpg'
+#file_name = 'images/test0.jpg'
+file_name = 'images/test1.jpg'
+#file_name = 'images/number.png'
 
 '''
 def findIndividualChar(file_name):
@@ -57,15 +62,15 @@ def findTextRegion(file_name):
 
     # Use Canny Edge Detection
     img2gray = cv2.medianBlur(img2gray, 5)
-    new_img = cv2.Canny(img2gray,100,200)
-
+    new_img = cv2.Canny(img2gray,10,40)
+    cv2.imshow('Canny', new_img)
     # Preform morphological transform
     kernel = cv2.getStructuringElement(cv2.MORPH_CROSS,(3 , 3)) 
 
     # TEXT REGIONS
     # dilate is to increase blob size, erode is to increase blob size
-    morphed_img = cv2.dilate(new_img,kernel,iterations = 15) # dilate , more the iteration more the dilation
-    morphed_img = cv2.erode(morphed_img, kernel, iterations = 9)
+    morphed_img = cv2.dilate(new_img,kernel,iterations = 12) # dilate , more the iteration more the dilation
+    morphed_img = cv2.erode(morphed_img, kernel, iterations = 3)
 
     cv2.imshow('morphed',morphed_img)
 
@@ -90,8 +95,8 @@ def findTextRegion(file_name):
 	
 	
 	
-	cv2.imshow('cropped', cropped)
-	cv2.waitKey(0)
+	#cv2.imshow('cropped', cropped)
+	#cv2.waitKey(0)
 
 	recognizeText(cropped)
 
