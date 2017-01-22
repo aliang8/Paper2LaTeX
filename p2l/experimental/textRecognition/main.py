@@ -9,6 +9,9 @@ from textRecognitionCNN import *
 #file_name = 'images/alphabet_custom.jpg'
 #file_name = 'images/test0.jpg'
 file_name = 'images/test1.jpg'
+#file_name = 'images/test2.jpg'
+#file_name = 'images/test3.jpg'
+#file_name = 'images/test4.jpg'
 #file_name = 'images/number.png'
 
 '''
@@ -64,12 +67,13 @@ def findTextRegion(file_name):
     img2gray = cv2.medianBlur(img2gray, 5)
     new_img = cv2.Canny(img2gray,10,40)
     cv2.imshow('Canny', new_img)
+    cv2.waitKey(0)
     # Preform morphological transform
     kernel = cv2.getStructuringElement(cv2.MORPH_CROSS,(3 , 3)) 
 
     # TEXT REGIONS
     # dilate is to increase blob size, erode is to increase blob size
-    morphed_img = cv2.dilate(new_img,kernel,iterations = 12) # dilate , more the iteration more the dilation
+    morphed_img = cv2.dilate(new_img,kernel,iterations = 15) # dilate , more the iteration more the dilation
     morphed_img = cv2.erode(morphed_img, kernel, iterations = 3)
 
     cv2.imshow('morphed',morphed_img)

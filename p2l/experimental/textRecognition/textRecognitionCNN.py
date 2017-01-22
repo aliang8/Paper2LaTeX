@@ -10,10 +10,13 @@ from keras.datasets import mnist
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
-from keras.layers import Flatten
+from keras.layers import Flatten, Activation
 from keras.layers.convolutional import Convolution2D
 from keras.layers.convolutional import MaxPooling2D
 from keras.utils import np_utils
+
+from keras.constraints import maxnorm
+
 
 from PIL import Image
 
@@ -50,17 +53,51 @@ class ContourWithData():
 
 ###################################################################################################
 def initalizeCNN():
+	seed = 7
+	np.random.seed(seed)
+
+	'''
 	# create model
-        model = Sequential()
+	model = Sequential()
         model.add(Convolution2D(30, 5, 5, border_mode='valid', input_shape=(1,28,28), activation='relu'))
         model.add(MaxPooling2D(pool_size=(2,2)))
+        model.add(Dropout(0.2))
         model.add(Convolution2D(15, 3, 3, activation='relu'))
         model.add(MaxPooling2D(pool_size=(2,2)))
         model.add(Dropout(0.2))
+        model.add(Convolution2D(15, 3, 3, activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2,2)))
+        model.add(Dropout(0.5))
         model.add(Flatten())
         model.add(Dense(128, activation='relu'))
         model.add(Dense(50, activation='relu'))
         model.add(Dense(10, activation='softmax'))
+	'''
+
+	model = Sequential()
+
+	model.add(Convolution2D(32, 3, 3, input_shape=(1, 32, 32), border_mode='same', activation='relu', W_constraint=maxnorm(3)))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	model.add(Dropout(0.3))
+
+	model.add(Convolution2D(32, 3, 3, border_mode='same', activation='relu', W_constraint=maxnorm(3)))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	model.add(Dropout(0.3))
+
+	model.add(Convolution2D(64, 3, 3, border_mode='same', activation='relu', W_constraint=maxnorm(3)))
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	model.add(Dropout(0.3))
+
+	model.add(Flatten())
+	model.add(Dense(512, activation='relu', W_constraint=maxnorm(3)))
+	model.add(Dropout(0.5))
+	model.add(Dense(10, activation='softmax'))
+
+
+
 
         # Compile model
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -69,6 +106,17 @@ def initalizeCNN():
 
         return model
 
+def initalizeSimple():
+	# create model
+	num_classes = 10
+	num_pixels = 784
+
+        model = Sequential()
+        model.add(Dense(num_pixels, input_dim=num_pixels, init='normal', activation='relu'))
+        model.add(Dense(num_classes, init='normal', activation='softmax'))
+        # Compile model
+        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        return model
 
 
 
@@ -153,11 +201,11 @@ def recognizeText(imgTestingNumbers):
                       (0, 255, 0),              # green
                       2)                        # thickness
 
-        imgROI = imgThresh[contourWithData.intRectY : contourWithData.intRectY + contourWithData.intRectHeight,     # crop char out of threshold image
+        imgROI = imgThresh[contourWithData.intRectY : contourWithData.intRectY +  contourWithData.intRectHeight,     # crop char out of threshold image
                            contourWithData.intRectX : contourWithData.intRectX + contourWithData.intRectWidth]
 
 	imgROI = Image.fromarray(imgROI)
-	imgROI = imgROI.resize((28, 28), Image.ANTIALIAS)
+	imgROI = imgROI.resize((32, 32), Image.ANTIALIAS)
 
 
 	imgROI = np.asarray(imgROI)
@@ -172,13 +220,18 @@ def recognizeText(imgTestingNumbers):
 	###################### PREDICTION POWER ###############################
 	testImage = imgROI
 	model = initalizeCNN()
+	#model = initalizeSimple()
 	
 	#print testImage.shape
+	#print testImage.flatten().shape
 
-	#cv2.imshow('testImage',testImage)
-	#cv2.waitKey(0)
+	#print testImage.flatten().shape
 
-	pred = model.predict_classes(np.array([np.array([testImage])]), 1, verbose=0)
+	cv2.imshow('testImage',testImage)
+	cv2.waitKey(0)
+
+	pred = model.predict_classes(np.array([np.array([testImage])]), 1, verbose=0)	
+	#pred = model.predict_classes(testImage.flatten(), 1, verbose=0)	
 	#print pred	
 	## KNN predicction snippet
 	'''
