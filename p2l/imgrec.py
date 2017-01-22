@@ -5,8 +5,8 @@ try: # Compatibility with different OpenCV versions.
 except:
     HOUGH_GRADIENT = cv2.HOUGH_GRADIENT
 import numpy as np
-from Queue import Queue
 from itertools import repeat, chain, product
+from Queue import Queue
 
 from graph import Graph, Node
 
@@ -21,17 +21,17 @@ def rc_to_xy(point):
     return (point[1], point[0])
 
 
-def get_graph(file_name, max_width=800, debug=False):
+def get_graph(file_name, max_width=900, debug=False):
     """Given the name of an image file, generate a Graph corresponding to the
     contents of the image."""
     img = cv2.imread(file_name, cv2.IMREAD_GRAYSCALE)
     img = cv2.medianBlur(img, 5)
 
     # Downsample image via Gaussian pyramind.
-    width, height = img.shape
+    height, width = img.shape
     while width > max_width:
         img = cv2.pyrDown(img)
-        width, height = img.shape
+        height, width = img.shape
 
     # Threshold image to separate light/dark pixels.
     # TODO: Figure out appropriate threshold from the image.
@@ -51,7 +51,7 @@ def get_graph(file_name, max_width=800, debug=False):
 
     print img_nodes
 
-    graph = find_edges(thresh_img, img_nodes, make_bbox_edge_dict(img_nodes))
+    graph = find_edges(thresh_img, img_nodes, make_bbox_edge_dict(thresh_img, img_nodes))
     if debug:
         print graph
         cv2.namedWindow('detected circles', cv2.WINDOW_NORMAL)
@@ -64,7 +64,7 @@ def get_graph(file_name, max_width=800, debug=False):
 
 
 def find_circle_nodes(img, debug=False):
-    width, height = img.shape
+    height, width = img.shape
     min_closest_dist = max(height, width) / 7
 
     circles = cv2.HoughCircles(img, HOUGH_GRADIENT, 1,
@@ -104,34 +104,108 @@ def find_edges(image, nodes, bbox_edges):
 
 def fill_node_bboxes(image, nodes):
     for node in nodes:
-        cv2.rectangle(image, node.bbox_tl, node.bbox_br, PIXEL_UNVISITED, -1)
+        cv2.rectangle(image, node.bbox_tl, node.bbox_br, PIXEL_BG, -1)
 
 
 def find_nbhd(image, nodes, bbox_edges, node):
     """ Finds all of the nodes that are adjacent to the given node in the image."""
-    return traverse_edge(image, nodes, bbox_edges, node, node.pos)
+    height, width = image.shape
+    bbox_iter_outer = make_bbox_iter(image, node.bbox_tl, node.bbox_br, resize=1)
+        #(max(0, node.bbox_tl[0] - 2), max(0, node.bbox_tl[1] - 2)),
+        #(min(height - 1, node.bbox_br[0] + 2), min(width - 1, node.bbox_br[1] + 2)))
+
+    start_pixels = []
+    on_edge = False
+    for pixel in bbox_iter_outer:
+        if on_edge:
+            if image[pixel] == PIXEL_BG:
+                on_edge = False
+        else:
+            if image[pixel] == PIXEL_UNVISITED:
+                start_pixels.append(pixel)
+                on_edge = True
+
+    print "start pixels", start_pixels
+
+    bbox_iter_inner = make_bbox_iter(image, node.bbox_tl, node.bbox_br)
+    for pixel in bbox_iter_inner:
+        image[pixel] = PIXEL_BG
+
+    nbhd = set()
+    for start_pixel in start_pixels:
+        nbhd.update(traverse_edge(image, nodes, bbox_edges, node, start_pixel))
+
+    return nbhd
 
 
-def traverse_edge(image, nodes, bbox_edges, start_node, start_pixel):
+def traverse_edge(image, nodes, bbox_edges, start_node, start_pixel, momentum=80):
+    height, width = image.shape
+
+    # Reset all non-background pixels. Quick-and-dirty fix for issues related
+    # to crossing edges. TODO: Find a faster way to achieve same effect.
+    for i in range(height):
+        for j in range(width):
+            if image[i, j] != PIXEL_BG:
+                image[i, j] = PIXEL_UNVISITED
+
     frontier = []
-    frontier.append(xy_to_rc(start_pixel))
+    frontier.append(start_pixel)
 
     found_nodes = set()
 
+    checkpt_1 = None
+    checkpt_2 = start_pixel
+    checkpt_3 = None
+
+    iter = 0
     while frontier:
         current = frontier.pop()
         image[current] = PIXEL_VISITED
 
+        if (iter + 1) % momentum == 0:
+            # Update checkpoints.
+            checkpt_1 = checkpt_2
+            checkpt_2 = current
+
+            # Extrapolate checkpt_1 and checkpt_2 to get checkpt_3.
+            checkpt_3 = [
+                2 * checkpt_2[0] - checkpt_1[0],
+                2 * checkpt_2[1] - checkpt_1[1]
+                ]
+            if checkpt_3[0] < 0:
+                checkpt_3[0] = 0
+            elif checkpt_3[0] > height:
+                checkpt_3[0] = height
+            if checkpt_3[1] < 0:
+                checkpt_3[1] = 0
+            elif checkpt_3[1] > width:
+                checkpt_3[1] = width
+            checkpt_3 = tuple(checkpt_3)
+
         if current in bbox_edges and start_node != bbox_edges[current]: # Don't count loops as edges
             found_nodes.add(bbox_edges[current])
-            continue # Don't expand current pixel if it is on the boundary of a bounding box.
+            return found_nodes
+            # Don't expand current pixel if it is on the boundary of a bounding box.
 
-        for pixel in adjacent_pixels(current, image.shape):
+        next_pixels = adjacent_pixels(current, image.shape)
+        if checkpt_3 is not None:
+            # Enforce that the point closest to checkpt_3 be explored first.
+            neg_dists = [-distance(px, checkpt_3) for px in next_pixels]
+            next_pixels = [px for _, px in sorted(zip(neg_dists, next_pixels))]
+
+        for pixel in next_pixels:
             if image[pixel] == PIXEL_UNVISITED:
                 image[pixel] = PIXEL_DISCOVERED
                 frontier.append(pixel)
 
+        iter += 1
+
     return found_nodes
+
+
+def distance(a, b):
+    """Manhattan distance."""
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 
 def adjacent_pixels(pixel, image_shape):
@@ -148,10 +222,11 @@ def adjacent_pixels(pixel, image_shape):
     return adjacent
 
 
-def make_bbox_iter(bbox_tl, bbox_br):
+def make_bbox_iter(image, bbox_tl, bbox_br, resize=0):
+    height, width = image.shape
     print bbox_tl, bbox_br
-    bbox_tl = (bbox_tl[1], bbox_tl[0])
-    bbox_br = (bbox_br[1], bbox_br[0])
+    bbox_tl = (max(0, bbox_tl[1] - resize), max(0, bbox_tl[0] - resize))
+    bbox_br = (min(height, bbox_br[1] + resize), min(width, bbox_br[0] + resize))
 
     bbox_tr = (bbox_br[0], bbox_tl[1])
     bbox_bl = (bbox_tl[0], bbox_br[1])
@@ -164,10 +239,10 @@ def make_bbox_iter(bbox_tl, bbox_br):
     return chain(tl_to_tr, tr_to_br, br_to_bl, bl_to_tl)
 
 
-def make_bbox_edge_dict(nodes):
+def make_bbox_edge_dict(image, nodes):
     bbox_edges = {}
     for node in nodes:
-        bbox_iter = make_bbox_iter(node.bbox_tl, node.bbox_br)
+        bbox_iter = make_bbox_iter(image, node.bbox_tl, node.bbox_br, resize=2)
         for pixel in bbox_iter:
             bbox_edges[pixel] = node
 
