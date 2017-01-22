@@ -91,7 +91,8 @@ def find_circle_nodes(img, debug=False, minRadius=5, maxRadius=50):
             j = y
 
             img_circle = img[max(0, j-r2):min(height, j+r2), max(0, i-r2):min(width, i+r2)]
-            
+            # TODO: maybe try if there is only 1 circle in the img_circle image, then try
+            # otherwise do not use, as it is a false circle
             if cv2.HoughCircles(img_circle, HOUGH_GRADIENT, 1,
                     min_closest_dist, param1=50, param2=10, minRadius=minRadius, maxRadius=maxRadius) is not None:
                 img_node = Node(None, bbox_tl=(max(0, i - r2), max(0, j - r2)),
