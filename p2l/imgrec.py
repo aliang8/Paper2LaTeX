@@ -35,7 +35,8 @@ def get_graph(file_name, max_width=900, debug=False):
 
     # Threshold image to separate light/dark pixels.
     # TODO: Figure out appropriate threshold from the image.
-    thresh_img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, -5)
+    #thresh_img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, -5)
+    _, thresh_img = cv2.threshold(img, 180, 255, cv2.THRESH_BINARY_INV)
     """
     if thresh_img[0][0] < 255:
         thresh_img = 255 - thresh_img
@@ -99,7 +100,7 @@ def find_edges(image, nodes, bbox_edges):
     for node in nodes:
         nbhds[node] = find_nbhd(image, nodes, bbox_edges, node)
 
-    return make_graph(nbhds)
+    return make_graph(nodes, nbhds)
 
 
 def fill_node_bboxes(image, nodes):
@@ -226,7 +227,7 @@ def make_bbox_iter(image, bbox_tl, bbox_br, resize=0):
     height, width = image.shape
     print bbox_tl, bbox_br
     bbox_tl = (max(0, bbox_tl[1] - resize), max(0, bbox_tl[0] - resize))
-    bbox_br = (min(height, bbox_br[1] + resize), min(width, bbox_br[0] + resize))
+    bbox_br = (min(height - 1, bbox_br[1] + resize), min(width - 1, bbox_br[0] + resize))
 
     bbox_tr = (bbox_br[0], bbox_tl[1])
     bbox_bl = (bbox_tl[0], bbox_br[1])
@@ -249,12 +250,21 @@ def make_bbox_edge_dict(image, nodes):
     return bbox_edges
 
 
-def make_graph(nbhds):
+def make_graph(nodes, nbhds):
     """Generates a Graph object from the dictionary of neighborhoods."""
-    nodes = set()
+    new_nodes = set()
+    old_to_new = {}
+    new_to_old = {}
     for node in nbhds.keys():
-        nodes.add(Node(None, pos=node.pos, neighbors=nbhds[node]))
+        new_node = Node(None, pos=node.pos)
+        new_nodes.add(new_node)
+        old_to_new[node] = new_node
+        new_to_old[new_node] = node
 
-    return Graph(nodes)
+    for new_node in new_nodes:
+        nbhd = set(old_to_new[nbr] for nbr in nbhds[new_to_old[new_node]])
+        new_node.neighbors = nbhd
+
+    return Graph(new_nodes)
 
 
