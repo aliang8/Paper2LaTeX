@@ -7,7 +7,8 @@ except:
 import numpy as np
 from itertools import repeat, chain, product
 from Queue import Queue
-
+from skimage.morphology import skeletonize
+from skimage import img_as_ubyte
 from graph import Graph, Node
 
 PIXEL_UNVISITED = 0  # Value of an unvisited pixel.
@@ -25,21 +26,35 @@ def get_graph(file_name, max_width=900, debug=False):
     """Given the name of an image file, generate a Graph corresponding to the
     contents of the image."""
     img = cv2.imread(file_name, cv2.IMREAD_GRAYSCALE)
-    img = cv2.medianBlur(img, 5)
-
     # Downsample image via Gaussian pyramind.
-    height, width = img.shape
+    width, height = img.shape
     while width > max_width:
         img = cv2.pyrDown(img)
-        height, width = img.shape
+    #     height, width = img.shape
 
-    # Threshold image to separate light/dark pixels.
-    # TODO: Figure out appropriate threshold from the image.
-    thresh_img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, -5)
-    """
-    if thresh_img[0][0] < 255:
-        thresh_img = 255 - thresh_img
-    """
+    # # Threshold image to separate light/dark pixels.
+    # # TODO: Figure out appropriate threshold from the image.
+    # #thresh_img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, -5)
+    # _, thresh_img = cv2.threshold(img, 180, 255, cv2.THRESH_BINARY_INV)
+    # """
+    # if thresh_img[0][0] < 255:
+    #     thresh_img = 255 - thresh_img
+    # """
+        width, height = img.shape
+
+    img = cv2.blur(img, (5, 5))
+    cv2.imshow('blur', img)
+    _, thresh_img_1 = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    thresh_img_2 = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 13, -5)
+    thresh_img_3 = cv2.morphologyEx(thresh_img_2, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+    thresh_img_3_blur = cv2.blur(thresh_img_3, (8, 8))
+    thresh_img_4 = cv2.erode(thresh_img_3_blur, np.ones((2, 2), np.uint8), iterations=3)
+    _, thresh_img_5 = cv2.threshold(thresh_img_4, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    thresh_img_6 = img_as_ubyte(skeletonize(thresh_img_5 != 255))
+    _, thresh_img_7 = cv2.threshold(thresh_img_6, 0, 255, cv2.THRESH_BINARY_INV)
+
+    thresh_img = thresh_img_7
+    thresh_img_edges = thresh_img_7
 
     img_nodes = find_circle_nodes(thresh_img, debug=debug)
     if debug:
@@ -51,7 +66,7 @@ def get_graph(file_name, max_width=900, debug=False):
 
     print img_nodes
 
-    graph = find_edges(thresh_img, img_nodes, make_bbox_edge_dict(thresh_img, img_nodes))
+    graph = find_edges(thresh_img_5, img_nodes, make_bbox_edge_dict(thresh_img, img_nodes))
     if debug:
         print graph
         cv2.namedWindow('detected circles', cv2.WINDOW_NORMAL)
@@ -99,7 +114,7 @@ def find_edges(image, nodes, bbox_edges):
     for node in nodes:
         nbhds[node] = find_nbhd(image, nodes, bbox_edges, node)
 
-    return make_graph(nbhds)
+    return make_graph(nodes, nbhds)
 
 
 def fill_node_bboxes(image, nodes):
@@ -226,7 +241,7 @@ def make_bbox_iter(image, bbox_tl, bbox_br, resize=0):
     height, width = image.shape
     print bbox_tl, bbox_br
     bbox_tl = (max(0, bbox_tl[1] - resize), max(0, bbox_tl[0] - resize))
-    bbox_br = (min(height, bbox_br[1] + resize), min(width, bbox_br[0] + resize))
+    bbox_br = (min(height - 1, bbox_br[1] + resize), min(width - 1, bbox_br[0] + resize))
 
     bbox_tr = (bbox_br[0], bbox_tl[1])
     bbox_bl = (bbox_tl[0], bbox_br[1])
@@ -249,12 +264,21 @@ def make_bbox_edge_dict(image, nodes):
     return bbox_edges
 
 
-def make_graph(nbhds):
+def make_graph(nodes, nbhds):
     """Generates a Graph object from the dictionary of neighborhoods."""
-    nodes = set()
+    new_nodes = set()
+    old_to_new = {}
+    new_to_old = {}
     for node in nbhds.keys():
-        nodes.add(Node(None, pos=node.pos, neighbors=nbhds[node]))
+        new_node = Node(None, pos=node.pos)
+        new_nodes.add(new_node)
+        old_to_new[node] = new_node
+        new_to_old[new_node] = node
 
-    return Graph(nodes)
+    for new_node in new_nodes:
+        nbhd = set(old_to_new[nbr] for nbr in nbhds[new_to_old[new_node]])
+        new_node.neighbors = nbhd
+
+    return Graph(new_nodes)
 
 

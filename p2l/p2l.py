@@ -1,3 +1,8 @@
-from imgrec import get_graph 
+import sys
+from imgrec import get_graph
+from genlatex import transpile
 
-get_graph("../examples/2nodes_dark.jpg", True)
+if __name__ == "__main__":
+	img_name = sys.argv[1]
+	transpile(get_graph(img_name))
+
