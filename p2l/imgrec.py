@@ -54,7 +54,7 @@ def get_graph(file_name, max_width=900, debug=False):
     thresh_img_6 = img_as_ubyte(skeletonize(thresh_img_5 != 255))
     _, thresh_img_7 = cv2.threshold(thresh_img_6, 0, 255, cv2.THRESH_BINARY_INV)
 
-    thresh_img = thresh_img_7
+    thresh_img = thresh_img_5
     thresh_img_edges = thresh_img_7
 
     img_nodes = find_circle_nodes(thresh_img, debug=debug)
@@ -67,7 +67,7 @@ def get_graph(file_name, max_width=900, debug=False):
 
     print img_nodes
 
-    graph = find_edges(thresh_img_5, img_nodes, make_bbox_edge_dict(thresh_img, img_nodes))
+    graph = find_edges(thresh_img_7, img_nodes, make_bbox_edge_dict(thresh_img_7, img_nodes))
     if debug:
         print graph
         cv2.namedWindow('detected circles', cv2.WINDOW_NORMAL)
@@ -107,7 +107,7 @@ def find_circle_nodes(img, debug=False):
 def find_edges(image, nodes, bbox_edges):
     """Finds the edges between nodes in the given image."""
 
-    # fill_node_bboxes(image, nodes)
+    fill_node_bboxes(image, nodes)
 
     # Dictionary mapping each node to its immediate neighbourhood.
     nbhds = {}
@@ -213,8 +213,6 @@ def traverse_edge(image, nodes, bbox_edges, start_node, start_pixel, lookback=4)
 
 
 def distance(a, b):
-    """Manhattan distance."""
-    #return abs(a[0] - b[0]) + abs(a[1] - b[1])
     return math.sqrt((a[0] - b[0]) ** 2 + (b[1] - a[1]) ** 2)
 
 def adjacent_pixels(pixel, image_shape):
