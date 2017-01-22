@@ -29,13 +29,10 @@ def upload_photo():
       if img and allowed_file(img.filename):
           img_name = secure_filename(img.filename)
           img.save(os.path.join(app.config['UPLOAD_FOLDER'], img_name))
-          '''
-          img_nodes, img = get_semantics(file_name)
+          img_nodes, img = get_semantics(img_name)
           bbox_edges = make_bbox_edge_dict(img_nodes)
           graph = find_edges(img, img_nodes, bbox_edges)
-          width, height = img.shape
-          transpile(graph, width, height)
-          '''
+          transpile(graph)
           return redirect(url_for('uploaded_file', filename = img_name))
       
     else:

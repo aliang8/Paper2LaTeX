@@ -1,0 +1,3 @@
+from imgrec import get_graph 
+
+get_graph("../examples/2nodes_dark.jpg", False)
