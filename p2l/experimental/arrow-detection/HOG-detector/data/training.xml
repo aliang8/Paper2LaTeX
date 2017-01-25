@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<?xml-stylesheet type='text/xsl' href='image_metadata_stylesheet.xsl'?>
+<dataset>
+<name>imglab dataset</name>
+<comment>Created by imglab tool.</comment>
+<images>
+  <image file='/ilab/users/al900/Documents/Programming/ml-projects/HOG-obeject-detector-dlib/images/arrows/0.jpg'>
+    <box top='273' left='328' width='94' height='124'/>
+    <box top='204' left='529' width='144' height='111'/>
+    <box top='500' left='352' width='136' height='142'/>
+  </image>
+  <image file='/ilab/users/al900/Documents/Programming/ml-projects/HOG-obeject-detector-dlib/images/arrows/1.jpg'>
+    <box top='567' left='325' width='91' height='102'/>
+    <box top='745' left='385' width='80' height='99'/>
+    <box top='608' left='143' width='87' height='131'/>
+    <box top='887' left='250' width='93' height='107'/>
+  </image>
+  <image file='/ilab/users/al900/Documents/Programming/ml-projects/HOG-obeject-detector-dlib/images/arrows/2.jpg'>
+    <box top='179' left='394' width='93' height='107'/>
+    <box top='280' left='400' width='98' height='102'/>
+    <box top='476' left='463' width='114' height='98'/>
+    <box top='490' left='13' width='115' height='73'/>
+    <box top='538' left='153' width='84' height='91'/>
+    <box top='618' left='169' width='87' height='84'/>
+    <box top='796' left='411' width='89' height='77'/>
+    <box top='829' left='274' width='92' height='108'/>
+  </image>
+  <image file='/ilab/users/al900/Documents/Programming/ml-projects/HOG-obeject-detector-dlib/images/arrows/3.jpg'>
+    <box top='204' left='102' width='116' height='138'/>
+    <box top='107' left='227' width='135' height='110'/>
+    <box top='102' left='438' width='109' height='130'/>
+    <box top='241' left='321' width='129' height='125'/>
+    <box top='405' left='366' width='109' height='144'/>
+    <box top='410' left='512' width='89' height='106'/>
+    <box top='662' left='474' width='105' height='112'/>
+    <box top='539' left='31' width='136' height='182'/>
+  </image>
+  <image file='/ilab/users/al900/Documents/Programming/ml-projects/HOG-obeject-detector-dlib/images/arrows/4.jpg'>
+    <box top='190' left='13' width='127' height='119'/>
+    <box top='114' left='482' width='105' height='129'/>
+    <box top='346' left='427' width='108' height='137'/>
+    <box top='373' left='143' width='132' height='124'/>
+    <box top='380' left='-17' width='121' height='121'/>
+    <box top='564' left='9' width='120' height='114'/>
+    <box top='690' left='274' width='107' height='128'/>
+    <box top='846' left='216' width='105' height='131'/>
+    <box top='830' left='364' width='100' height='102'/>
+    <box top='720' left='551' width='94' height='114'/>
+    <box top='614' left='515' width='110' height='102'/>
+    <box top='558' left='335' width='120' height='120'/>
+  </image>
+  <image file='/ilab/users/al900/Documents/Programming/ml-projects/HOG-obeject-detector-dlib/images/arrows/5.jpg'>
+    <box top='26' left='33' width='76' height='94'/>
+    <box top='2' left='124' width='87' height='72'/>
+    <box top='75' left='209' width='70' height='80'/>
+    <box top='60' left='321' width='85' height='75'/>
+    <box top='13' left='518' width='69' height='74'/>
+    <box top='80' left='546' width='80' height='84'/>
+    <box top='103' left='680' width='82' height='73'/>
+    <box top='62' left='765' width='74' height='77'/>
+    <box top='169' left='712' width='91' height='102'/>
+    <box top='317' left='699' width='81' height='99'/>
+    <box top='254' left='663' width='72' height='82'/>
+    <box top='148' left='608' width='68' height='65'/>
+    <box top='159' left='475' width='73' height='69'/>
+    <box top='178' left='389' width='79' height='85'/>
+    <box top='133' left='244' width='74' height='74'/>
+    <box top='203' left='141' width='86' height='80'/>
+    <box top='134' left='65' width='75' height='77'/>
+    <box top='253' left='62' width='90' height='89'/>
+    <box top='273' left='218' width='56' height='76'/>
+    <box top='306' left='285' width='69' height='71'/>
+    <box top='360' left='436' width='73' height='71'/>
+    <box top='342' left='579' width='79' height='78'/>
+    <box top='265' left='556' width='66' height='80'/>
+    <box top='236' left='488' width='88' height='79'/>
+    <box top='462' left='758' width='75' height='92'/>
+    <box top='550' left='590' width='117' height='74'/>
+    <box top='559' left='497' width='98' height='78'/>
+    <box top='563' left='394' width='93' height='71'/>
+    <box top='471' left='406' width='100' height='100'/>
+    <box top='386' left='347' width='79' height='79'/>
+    <box top='527' left='297' width='90' height='67'/>
+    <box top='459' left='216' width='94' height='95'/>
+    <box top='354' left='182' width='80' height='78'/>
+    <box top='353' left='79' width='93' height='79'/>
+    <box top='439' left='6' width='69' height='68'/>
+    <box top='538' left='91' width='85' height='77'/>
+  </image>
+  <image file='/ilab/users/al900/Documents/Programming/ml-projects/HOG-obeject-detector-dlib/images/arrows/6.jpg'>
+    <box top='10' left='112' width='101' height='115'/>
+    <box top='13' left='245' width='96' height='87'/>
+    <box top='0' left='347' width='81' height='86'/>
+    <box top='135' left='561' width='106' height='94'/>
+    <box top='55' left='671' width='85' height='91'/>
+    <box top='133' left='734' width='87' height='100'/>
+    <box top='255' left='749' width='84' height='87'/>
+    <box top='396' left='732' width='98' height='78'/>
+    <box top='258' left='626' width='109' height='86'/>
+    <box top='512' left='547' width='108' height='88'/>
+    <box top='532' left='301' width='100' height='97'/>
+    <box top='391' left='409' width='83' height='86'/>
+    <box top='294' left='499' width='82' height='81'/>
+    <box top='277' left='287' width='86' height='98'/>
+    <box top='284' left='176' width='92' height='100'/>
+    <box top='450' left='188' width='108' height='90'/>
+    <box top='457' left='56' width='100' height='93'/>
+    <box top='249' left='3' width='63' height='81'/>
+    <box top='81' left='218' width='86' height='93'/>
+    <box top='131' left='299' width='88' height='98'/>
+    <box top='154' left='99' width='105' height='98'/>
+  </image>
+  <image file='/ilab/users/al900/Documents/Programming/ml-projects/HOG-obeject-detector-dlib/images/arrows/7.jpg'>
+    <box top='53' left='117' width='109' height='138'/>
+    <box top='109' left='25' width='99' height='101'/>
+    <box top='225' left='78' width='114' height='99'/>
+    <box top='314' left='149' width='106' height='110'/>
+    <box top='442' left='2' width='85' height='113'/>
+    <box top='564' left='126' width='98' height='102'/>
+    <box top='500' left='212' width='99' height='97'/>
+    <box top='425' left='208' width='78' height='81'/>
+    <box top='372' left='268' width='101' height='100'/>
+    <box top='439' left='359' width='93' height='108'/>
+    <box top='393' left='428' width='100' height='114'/>
+    <box top='267' left='369' width='86' height='72'/>
+    <box top='178' left='281' width='121' height='93'/>
+    <box top='76' left='300' width='105' height='105'/>
+    <box top='114' left='386' width='92' height='100'/>
+    <box top='30' left='462' width='102' height='86'/>
+    <box top='-2' left='352' width='101' height='64'/>
+    <box top='213' left='563' width='71' height='104'/>
+    <box top='697' left='568' width='66' height='112'/>
+    <box top='629' left='430' width='118' height='116'/>
+    <box top='673' left='294' width='127' height='136'/>
+    <box top='817' left='228' width='83' height='95'/>
+    <box top='714' left='150' width='110' height='116'/>
+    <box top='673' left='21' width='110' height='117'/>
+    <box top='1061' left='89' width='83' height='73'/>
+    <box top='931' left='164' width='110' height='95'/>
+    <box top='940' left='337' width='142' height='126'/>
+    <box top='976' left='498' width='129' height='106'/>
+    <box top='287' left='450' width='93' height='115'/>
+  </image>
+</images>
+</dataset>
